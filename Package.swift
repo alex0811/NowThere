@@ -8,10 +8,15 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(name: "NowThereCore", targets: ["NowThereCore"])
+        .library(name: "NowThereCore", targets: ["NowThereCore"]),
+        .executable(name: "NowThere", targets: ["NowThere"])
     ],
     targets: [
         .target(name: "NowThereCore"),
+        .executableTarget(
+            name: "NowThere",
+            dependencies: ["NowThereCore"]
+        ),
         .testTarget(name: "NowThereCoreTests", dependencies: ["NowThereCore"])
     ]
 )
