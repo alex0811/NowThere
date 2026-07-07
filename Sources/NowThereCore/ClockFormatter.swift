@@ -123,6 +123,12 @@ public final class ClockFormatter {
         let absoluteSeconds = abs(seconds)
         let hours = absoluteSeconds / 3_600
         let minutes = (absoluteSeconds % 3_600) / 60
-        return String(format: "UTC%@%02d:%02d", sign, hours, minutes)
+        return String(
+            format: "UTC%@%02d:%02d",
+            locale: Locale(identifier: "en_US_POSIX"),
+            sign,
+            hours,
+            minutes
+        )
     }
 }
