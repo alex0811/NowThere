@@ -129,6 +129,86 @@ final class ClockViewModelTests: XCTestCase {
         XCTAssertEqual(results.map(\.identifier), ["Asia/Tokyo"])
     }
 
+    func testTimerStartsAtNextMinuteBoundaryThenRepeatsEverySixtySeconds() throws {
+        let store = TimeZoneStore(defaults: makeDefaults(), fallbackTimeZone: {
+            TimeZone(secondsFromGMT: 0)!
+        })
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        store.saveTimeZone(tokyo)
+        store.saveVisibility(FieldVisibility(
+            showsCity: false,
+            showsDate: false,
+            showsWeekday: false,
+            showsTime: true
+        ))
+
+        let firstDate = try Self.utcDate(
+            year: 2026,
+            month: 7,
+            day: 8,
+            hour: 3,
+            minute: 34,
+            second: 45
+        )
+        let secondDate = try Self.utcDate(
+            year: 2026,
+            month: 7,
+            day: 8,
+            hour: 3,
+            minute: 35,
+            second: 0
+        )
+
+        var dates = [firstDate, secondDate]
+        let scheduler = FakeClockTimerScheduler()
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { dates.removeFirst() },
+            timerScheduler: scheduler,
+            startsTimer: true
+        )
+
+        XCTAssertEqual(viewModel.menuTitle, "12:34")
+        XCTAssertEqual(scheduler.scheduledTimers.count, 1)
+        XCTAssertEqual(scheduler.scheduledTimers[0].interval, 15, accuracy: 0.0001)
+        XCTAssertFalse(scheduler.scheduledTimers[0].repeats)
+
+        scheduler.fireLastScheduledTimer()
+
+        XCTAssertEqual(viewModel.menuTitle, "12:35")
+        XCTAssertEqual(scheduler.scheduledTimers.count, 2)
+        XCTAssertEqual(scheduler.scheduledTimers[1].interval, 60, accuracy: 0.0001)
+        XCTAssertTrue(scheduler.scheduledTimers[1].repeats)
+    }
+
+    func testTimerSchedulerInvalidatesUnderlyingTimerWhenViewModelIsReleased() throws {
+        let store = TimeZoneStore(defaults: makeDefaults(), fallbackTimeZone: {
+            TimeZone(secondsFromGMT: 0)!
+        })
+        let utc = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
+        store.saveTimeZone(utc)
+        let probe = InvalidationProbe()
+        weak var weakViewModel: ClockViewModel?
+
+        do {
+            let scheduler = FakeClockTimerScheduler(invalidationProbe: probe)
+            var viewModel: ClockViewModel? = ClockViewModel(
+                store: store,
+                loginItemManager: FakeLoginItemManager(isEnabled: false),
+                nowProvider: { Date(timeIntervalSince1970: 0) },
+                timerScheduler: scheduler,
+                startsTimer: true
+            )
+            weakViewModel = viewModel
+            XCTAssertNotNil(weakViewModel)
+            viewModel = nil
+        }
+
+        XCTAssertNil(weakViewModel)
+        XCTAssertEqual(probe.invalidateCount, 1)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "NowThereTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -141,7 +221,8 @@ final class ClockViewModelTests: XCTestCase {
         month: Int,
         day: Int,
         hour: Int,
-        minute: Int
+        minute: Int,
+        second: Int = 0
     ) throws -> Date {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
@@ -152,7 +233,8 @@ final class ClockViewModelTests: XCTestCase {
             month: month,
             day: day,
             hour: hour,
-            minute: minute
+            minute: minute,
+            second: second
         )
         return try XCTUnwrap(calendar.date(from: components))
     }
@@ -176,4 +258,56 @@ private final class FakeLoginItemManager: LoginItemManaging {
 
 private enum FakeLoginItemError: Error {
     case failed
+}
+
+private final class FakeClockTimerScheduler: ClockTimerScheduling {
+    struct ScheduledTimer {
+        let interval: TimeInterval
+        let repeats: Bool
+        let action: () -> Void
+    }
+
+    private final class TrackingTimer {
+        private var isInvalidated = false
+        private let invalidationProbe: InvalidationProbe
+
+        init(invalidationProbe: InvalidationProbe) {
+            self.invalidationProbe = invalidationProbe
+        }
+
+        func invalidate() {
+            guard !isInvalidated else {
+                return
+            }
+
+            isInvalidated = true
+            invalidationProbe.invalidateCount += 1
+        }
+    }
+
+    private(set) var scheduledTimers: [ScheduledTimer] = []
+    private var timer: TrackingTimer?
+    private let invalidationProbe: InvalidationProbe?
+
+    init(invalidationProbe: InvalidationProbe? = nil) {
+        self.invalidationProbe = invalidationProbe
+    }
+
+    func schedule(after interval: TimeInterval, repeats: Bool, action: @escaping () -> Void) {
+        timer?.invalidate()
+        timer = TrackingTimer(invalidationProbe: invalidationProbe ?? InvalidationProbe())
+        scheduledTimers.append(ScheduledTimer(interval: interval, repeats: repeats, action: action))
+    }
+
+    func fireLastScheduledTimer() {
+        scheduledTimers.last?.action()
+    }
+
+    deinit {
+        timer?.invalidate()
+    }
+}
+
+private final class InvalidationProbe {
+    var invalidateCount = 0
 }

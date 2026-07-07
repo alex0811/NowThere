@@ -13,6 +13,47 @@ public protocol LoginItemManaging: AnyObject {
     func setEnabled(_ enabled: Bool) throws
 }
 
+internal protocol ClockTimerScheduling: AnyObject {
+    func schedule(after interval: TimeInterval, repeats: Bool, action: @escaping () -> Void)
+}
+
+final class FoundationClockTimerScheduler: ClockTimerScheduling {
+    private var timer: Timer?
+    private var actionProxy: TimerActionProxy?
+
+    deinit {
+        timer?.invalidate()
+    }
+
+    func schedule(after interval: TimeInterval, repeats: Bool, action: @escaping () -> Void) {
+        timer?.invalidate()
+        let proxy = TimerActionProxy(action: action)
+        actionProxy = proxy
+
+        let nextTimer = Timer(
+            timeInterval: interval,
+            target: proxy,
+            selector: #selector(TimerActionProxy.fire),
+            userInfo: nil,
+            repeats: repeats
+        )
+        timer = nextTimer
+        RunLoop.main.add(nextTimer, forMode: .common)
+    }
+
+    private final class TimerActionProxy: NSObject {
+        private let action: () -> Void
+
+        init(action: @escaping () -> Void) {
+            self.action = action
+        }
+
+        @objc func fire() {
+            action()
+        }
+    }
+}
+
 @MainActor
 public final class ClockViewModel: ObservableObject {
     @Published public private(set) var selectedTimeZone: TimeZone
@@ -27,9 +68,9 @@ public final class ClockViewModel: ObservableObject {
     private let search: TimeZoneSearch
     private let loginItemManager: LoginItemManaging
     private let nowProvider: () -> Date
-    private var timer: Timer?
+    private let timerScheduler: ClockTimerScheduling
 
-    public init(
+    public convenience init(
         store: TimeZoneStore = TimeZoneStore(),
         formatter: ClockFormatter = ClockFormatter(),
         search: TimeZoneSearch = TimeZoneSearch(),
@@ -37,11 +78,32 @@ public final class ClockViewModel: ObservableObject {
         nowProvider: @escaping () -> Date = Date.init,
         startsTimer: Bool = true
     ) {
+        self.init(
+            store: store,
+            formatter: formatter,
+            search: search,
+            loginItemManager: loginItemManager,
+            nowProvider: nowProvider,
+            timerScheduler: FoundationClockTimerScheduler(),
+            startsTimer: startsTimer
+        )
+    }
+
+    init(
+        store: TimeZoneStore = TimeZoneStore(),
+        formatter: ClockFormatter = ClockFormatter(),
+        search: TimeZoneSearch = TimeZoneSearch(),
+        loginItemManager: LoginItemManaging,
+        nowProvider: @escaping () -> Date = Date.init,
+        timerScheduler: ClockTimerScheduling,
+        startsTimer: Bool = true
+    ) {
         self.store = store
         self.formatter = formatter
         self.search = search
         self.loginItemManager = loginItemManager
         self.nowProvider = nowProvider
+        self.timerScheduler = timerScheduler
 
         let loadedTimeZone = store.loadTimeZone()
         let loadedVisibility = store.loadVisibility()
@@ -121,11 +183,28 @@ public final class ClockViewModel: ObservableObject {
     }
 
     private func startTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.refresh()
-            }
+        let initialDelay = secondsUntilNextMinute(from: now)
+        timerScheduler.schedule(after: initialDelay, repeats: false) { [weak self] in
+            self?.refreshAfterMinuteBoundary()
         }
     }
+
+    private func refreshAfterMinuteBoundary() {
+        refresh()
+        timerScheduler.schedule(after: 60, repeats: true) { [weak self] in
+            self?.refresh()
+        }
+    }
+}
+
+internal func secondsUntilNextMinute(
+    from date: Date,
+    calendar: Calendar = .current
+) -> TimeInterval {
+    let seconds = TimeInterval(calendar.component(.second, from: date))
+    let nanoseconds = TimeInterval(calendar.component(.nanosecond, from: date)) / 1_000_000_000
+    let elapsed = seconds + nanoseconds
+    let remaining = 60 - elapsed
+
+    return remaining == 0 ? 60 : remaining
 }
