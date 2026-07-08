@@ -1,5 +1,7 @@
 # NowThere
 
+[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
 Your menu bar knows local time. Now it knows there.
 
 A native macOS menu bar clock for keeping one important time zone visible at a glance.

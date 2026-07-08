@@ -1,0 +1,118 @@
+# NowThere
+
+[English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
+メニューバーはローカル時間を知っている。NowThere は「あちら」の時間も知らせます。
+
+大切な 1 つのタイムゾーンを、macOS のメニューバーでいつでも確認できるネイティブ時計アプリです。
+
+`scripts/build-app-bundle.sh debug` | `open .build/debug/NowThere.app`
+
+---
+
+## なぜ NowThere？
+
+リモートチーム、旅行、リリース、会議、友人との予定は、ローカル時間だけでは足りないことがあります。NowThere は選んだ 1 つの場所を macOS のメニューバーに置き、カレンダーや時計アプリ、ブラウザを開かずに素早く確認できる形式で表示します。
+
+意図的に小さく作っています。選択するタイムゾーンは 1 つ、表示はコンパクト、システムのタイムゾーンを検索でき、必要な詳細はメニューから確認できます。
+
+## ハイライト
+
+### いつでも見える 1 つの時計
+
+NowThere はメニューバーにコンパクトなテキスト時計を表示します。
+
+```text
+Tokyo Jul 08 Wed 12:34
+```
+
+表示は分単位の境界で更新されるため、秒ごとに動かず落ち着いて確認できます。
+
+### システムのすべてのタイムゾーンを検索
+
+macOS の完全なタイムゾーン一覧から選択できます。`Tokyo` のような都市名でも、`Asia/Tokyo` のような IANA 識別子でも検索できます。
+
+### メニューバータイトルを調整
+
+タイトルに表示する項目を個別に切り替えられます。
+
+- City/Label
+- Date
+- Weekday
+- Time
+
+すべての項目を非表示にした場合は、空白にならないようアプリ名を表示します。
+
+### クリックで詳細を確認
+
+メニューを開くと、選択中のタイムゾーンの詳細を確認できます。
+
+- 都市ラベル
+- IANA タイムゾーン識別子
+- 完全な日付
+- 曜日
+- 時刻
+- UTC オフセット
+
+### ネイティブ macOS
+
+NowThere は小さな SwiftUI メニューバーアプリです。`MenuBarExtra` を使い、設定は `UserDefaults` に保存します。`LSUIElement` アプリとしてパッケージされるため、Dock には表示されません。
+
+## インストール
+
+署名済みのリリースビルドはまだありません。ローカルでビルドして実行してください。
+
+```bash
+scripts/build-app-bundle.sh debug
+open .build/debug/NowThere.app
+```
+
+古いプロセスがすでに起動している場合：
+
+```bash
+pkill NowThere
+open .build/debug/NowThere.app
+```
+
+## 動作要件
+
+- macOS 13+
+- Swift 6 ツールチェーンを含む Xcode
+
+このプロジェクトは macOS 26.4.1 と Xcode 26.5 でビルドおよびテストされています。
+
+## 開発者向け
+
+実行ファイルをビルド：
+
+```bash
+swift build --product NowThere
+```
+
+テストを実行：
+
+```bash
+swift test
+```
+
+app bundle をビルド：
+
+```bash
+scripts/build-app-bundle.sh debug
+```
+
+メニューバーアプリのフラグを確認：
+
+```bash
+/usr/libexec/PlistBuddy -c "Print :LSUIElement" .build/debug/NowThere.app/Contents/Info.plist
+```
+
+期待される出力：
+
+```text
+true
+```
+
+## 現在の範囲
+
+NowThere は現在、1 つの選択済みタイムゾーンに集中しています。複数時計、秒単位の更新、カスタム形式テンプレートにはまだ対応していません。
