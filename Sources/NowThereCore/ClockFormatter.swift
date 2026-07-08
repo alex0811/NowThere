@@ -65,13 +65,15 @@ public final class ClockFormatter {
     public func title(
         for date: Date,
         timeZone: TimeZone,
-        visibility: FieldVisibility
+        visibility: FieldVisibility,
+        customLabel: String = ""
     ) -> String {
-        guard visibility.hasVisibleField else {
-            return "NowThere"
-        }
-
         var parts: [String] = []
+        let trimmedCustomLabel = customLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !trimmedCustomLabel.isEmpty {
+            parts.append(trimmedCustomLabel)
+        }
 
         if visibility.showsCity {
             parts.append(cityLabel(for: timeZone))
@@ -87,6 +89,10 @@ public final class ClockFormatter {
 
         if visibility.showsTime {
             parts.append(format(date, format: "HH:mm", timeZone: timeZone))
+        }
+
+        guard !parts.isEmpty else {
+            return "NowThere"
         }
 
         return parts.joined(separator: " ")

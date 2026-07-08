@@ -7,7 +7,7 @@ final class ClockFormatterTests: XCTestCase {
         let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
         let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
 
-        let title = formatter.title(for: date, timeZone: tokyo, visibility: .allVisible)
+        let title = formatter.title(for: date, timeZone: tokyo, visibility: .allVisible, customLabel: "")
 
         XCTAssertEqual(title, "Tokyo Jul 08 Wed 12:34")
     }
@@ -23,7 +23,7 @@ final class ClockFormatterTests: XCTestCase {
             showsTime: true
         )
 
-        let title = formatter.title(for: date, timeZone: tokyo, visibility: visibility)
+        let title = formatter.title(for: date, timeZone: tokyo, visibility: visibility, customLabel: "")
 
         XCTAssertEqual(title, "Jul 08 12:34")
     }
@@ -39,9 +39,60 @@ final class ClockFormatterTests: XCTestCase {
             showsTime: false
         )
 
-        let title = formatter.title(for: date, timeZone: tokyo, visibility: visibility)
+        let title = formatter.title(for: date, timeZone: tokyo, visibility: visibility, customLabel: "")
 
         XCTAssertEqual(title, "NowThere")
+    }
+
+    func testTitleShowsCustomLabelBeforeCity() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: .allVisible,
+            customLabel: "  Work  "
+        )
+
+        XCTAssertEqual(title, "Work Tokyo Jul 08 Wed 12:34")
+    }
+
+    func testTitleTrimsAndHidesWhitespaceOnlyCustomLabel() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: .allVisible,
+            customLabel: "   "
+        )
+
+        XCTAssertEqual(title, "Tokyo Jul 08 Wed 12:34")
+    }
+
+    func testTitleShowsCustomLabelWhenEveryClockFieldIsHidden() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let visibility = FieldVisibility(
+            showsCity: false,
+            showsDate: false,
+            showsWeekday: false,
+            showsTime: false
+        )
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: visibility,
+            customLabel: "Work"
+        )
+
+        XCTAssertEqual(title, "Work")
     }
 
     func testDetailsIncludeFullDateWeekdayTimeAndOffset() throws {
