@@ -17,6 +17,7 @@ let package = Package(
             name: "NowThere",
             dependencies: ["NowThereCore"]
         ),
-        .testTarget(name: "NowThereCoreTests", dependencies: ["NowThereCore"])
+        .testTarget(name: "NowThereCoreTests", dependencies: ["NowThereCore"]),
+        .testTarget(name: "NowThereAppTests", dependencies: ["NowThere", "NowThereCore"])
     ]
 )

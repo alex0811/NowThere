@@ -16,12 +16,15 @@ struct NowThereApp: App {
         MenuBarExtra {
             MenuBarContentView(viewModel: viewModel)
         } label: {
-            Label {
-                Text(viewModel.menuTitle)
-            } icon: {
-                Image(systemName: "clock")
-            }
+            Text(NowThereMenuBarLabel.title(for: viewModel))
         }
         .menuBarExtraStyle(.window)
+    }
+}
+
+enum NowThereMenuBarLabel {
+    @MainActor
+    static func title(for viewModel: ClockViewModel) -> String {
+        viewModel.menuTitle
     }
 }
