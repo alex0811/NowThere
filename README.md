@@ -2,6 +2,10 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
+<p align="center">
+  <img src="docs/assets/nowthere-intro.png" alt="NowThere introduction image showing a macOS menu bar time zone clock for Tokyo" width="900">
+</p>
+
 Your menu bar knows local time. Now it knows there too.
 
 NowThere is a native macOS menu bar clock for keeping one important time zone visible at a glance, with a localized, configurable title that stays out of the Dock.
@@ -15,6 +19,12 @@ NowThere is a native macOS menu bar clock for keeping one important time zone vi
 Remote teams, travel plans, releases, calls, and friends rarely live in your local time zone. NowThere keeps one chosen place in the macOS menu bar, formatted for quick scanning without opening Calendar, Clock, or a browser tab.
 
 It is intentionally small: one selected time zone, a compact title, searchable system time zones, localized English, Simplified Chinese, and Japanese UI, and a menu for the details you need.
+
+## Everyday Uses
+
+- Keep a remote team's city visible before standups, planning sessions, and handoffs.
+- Check release windows, client calls, travel plans, or family time without converting in your head.
+- Give the clock a custom label like `Work`, `Home`, or a client name so the menu bar stays personal and readable.
 
 ## Highlights
 
