@@ -66,31 +66,62 @@ public final class ClockFormatter {
         for date: Date,
         timeZone: TimeZone,
         visibility: FieldVisibility,
-        customLabel: String = ""
+        customLabel: String = "",
+        titleStyle: TitleStyle = .standard
     ) -> String {
-        var parts: [String] = []
+        var nonTimeParts: [String] = []
         let trimmedCustomLabel = customLabel.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if !trimmedCustomLabel.isEmpty {
-            parts.append(trimmedCustomLabel)
+            nonTimeParts.append(trimmedCustomLabel)
         }
 
         if visibility.showsCity {
-            parts.append(cityLabel(for: timeZone))
+            nonTimeParts.append(cityLabel(for: timeZone))
         }
 
         if visibility.showsDate {
-            parts.append(format(date, format: "MMM dd", timeZone: timeZone))
+            nonTimeParts.append(format(date, format: "MMM dd", timeZone: timeZone))
         }
 
         if visibility.showsWeekday {
-            parts.append(format(date, format: "EEE", timeZone: timeZone))
+            nonTimeParts.append(format(date, format: "EEE", timeZone: timeZone))
         }
 
-        if visibility.showsTime {
-            parts.append(format(date, format: "HH:mm", timeZone: timeZone))
-        }
+        let timePart = visibility.showsTime ? format(date, format: "HH:mm", timeZone: timeZone) : nil
 
+        switch titleStyle {
+        case .standard:
+            var parts = nonTimeParts
+
+            if let timePart {
+                parts.append(timePart)
+            }
+
+            return title(from: parts)
+        case .timeFirst:
+            guard let timePart else {
+                return title(from: nonTimeParts)
+            }
+
+            return title(from: [timePart] + nonTimeParts)
+        case .separated:
+            guard let timePart else {
+                return title(from: nonTimeParts)
+            }
+
+            let details = nonTimeParts.joined(separator: " ")
+            return details.isEmpty ? timePart : "\(timePart) | \(details)"
+        case .bracketed:
+            guard let timePart else {
+                return title(from: nonTimeParts)
+            }
+
+            return title(from: ["[\(timePart)]"] + nonTimeParts)
+        }
+    }
+
+    private func title(from parts: [String]) -> String {
         guard !parts.isEmpty else {
             return "NowThere"
         }
