@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "NowThere",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v13)
     ],
@@ -15,7 +16,10 @@ let package = Package(
         .target(name: "NowThereCore"),
         .executableTarget(
             name: "NowThere",
-            dependencies: ["NowThereCore"]
+            dependencies: ["NowThereCore"],
+            resources: [
+                .process("Resources")
+            ]
         ),
         .testTarget(name: "NowThereCoreTests", dependencies: ["NowThereCore"]),
         .testTarget(name: "NowThereAppTests", dependencies: ["NowThere", "NowThereCore"])
