@@ -1,4 +1,5 @@
 import NowThereCore
+import AppKit
 import SwiftUI
 
 @MainActor
@@ -16,7 +17,7 @@ struct NowThereApp: App {
         MenuBarExtra {
             MenuBarContentView(viewModel: viewModel)
         } label: {
-            Text(NowThereMenuBarLabel.title(for: viewModel))
+            NowThereMenuBarLabel.view(for: viewModel)
         }
         .menuBarExtraStyle(.window)
     }
@@ -26,5 +27,12 @@ enum NowThereMenuBarLabel {
     @MainActor
     static func title(for viewModel: ClockViewModel) -> String {
         viewModel.menuTitle
+    }
+
+    @MainActor
+    static func view(for viewModel: ClockViewModel) -> some View {
+        Text(title(for: viewModel))
+            .font(.system(size: NSFont.systemFontSize(for: .regular), weight: .regular))
+            .foregroundStyle(.primary)
     }
 }
