@@ -15,4 +15,9 @@ cp Resources/Info.plist "$APP_DIR/Contents/Info.plist"
 cp "$BUILD_DIR/NowThere" "$APP_DIR/Contents/MacOS/NowThere"
 chmod +x "$APP_DIR/Contents/MacOS/NowThere"
 
+for RESOURCE_BUNDLE in "$BUILD_DIR"/*.resources "$BUILD_DIR"/*.bundle; do
+    [ -d "$RESOURCE_BUNDLE" ] || continue
+    cp -R "$RESOURCE_BUNDLE" "$APP_DIR/Contents/Resources/"
+done
+
 echo "$APP_DIR"
