@@ -23,9 +23,15 @@ Implemented the `Custom Label` settings text field in `Sources/NowThere/MenuBarC
 
 ## Commit
 
-- `45581eb` - `feat: add custom label setting`
+- `05e311b` - `feat: add custom label setting`
 
 ## Concerns
 
 - None.
 
+## Task 3 Fix
+
+- Removed the out-of-scope plan file `docs/superpowers/plans/2026-07-07-task-3-menu-ui-app-verification.md`.
+- Corrected the reviewed Task 3 commit reference to `05e311b feat: add custom label setting`.
+- Tests run: `swift test --filter MenuBarTitleTests`.
+- Concerns: none beyond the scope-limited file removal and report correction.
