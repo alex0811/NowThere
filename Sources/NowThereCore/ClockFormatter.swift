@@ -111,9 +111,6 @@ public final class ClockFormatter {
 
     public func cityLabel(for timeZone: TimeZone) -> String {
         let rawLabel = timeZone.identifier.split(separator: "/").last.map(String.init) ?? timeZone.identifier
-        if rawLabel == "GMT", timeZone.secondsFromGMT() == 0 {
-            return "UTC"
-        }
         return rawLabel.replacingOccurrences(of: "_", with: " ")
     }
 

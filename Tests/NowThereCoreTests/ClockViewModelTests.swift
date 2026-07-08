@@ -57,8 +57,8 @@ final class ClockViewModelTests: XCTestCase {
 
     func testSettingCustomLabelPersistsAndRefreshesTitle() throws {
         let defaults = makeDefaults()
-        let utc = try XCTUnwrap(TimeZone(identifier: "UTC"))
-        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { utc })
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
         let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
         let viewModel = ClockViewModel(
             store: store,
@@ -70,8 +70,28 @@ final class ClockViewModelTests: XCTestCase {
         viewModel.setCustomLabel("Work")
 
         XCTAssertEqual(viewModel.customLabel, "Work")
-        XCTAssertEqual(viewModel.menuTitle, "Work UTC Jul 08 Wed 03:34")
+        XCTAssertEqual(viewModel.menuTitle, "Work Tokyo Jul 08 Wed 12:34")
         XCTAssertEqual(store.loadCustomLabel(), "Work")
+    }
+
+    func testClearingCustomLabelPersistsEmptyValueAndRemovesItFromTitle() throws {
+        let defaults = makeDefaults()
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        viewModel.setCustomLabel("Work")
+        viewModel.setCustomLabel("")
+
+        XCTAssertEqual(viewModel.customLabel, "")
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34")
+        XCTAssertEqual(store.loadCustomLabel(), "")
     }
 
     func testInvalidTimeZoneSelectionDoesNotChangeState() throws {

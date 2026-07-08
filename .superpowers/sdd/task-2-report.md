@@ -56,3 +56,24 @@
 ## Any issues or concerns
 - 为满足 brief 中 `Work UTC Jul 08 Wed 03:34` 的精确期望值，额外修改了 `Sources/NowThereCore/ClockFormatter.swift`。根因是当前 macOS 运行时会把 `TimeZone(identifier: "UTC")` 规范化成 `GMT`，导致现有 `cityLabel(for:)` 输出 `GMT`。这个改动很小，但确实超出了 brief 中列出的两处实现文件。
 - 本地 SwiftPM 在受限沙箱下会因为 manifest/cache 权限失败，测试验证依赖任务里给出的缓存重定向命令并在沙箱外执行。
+
+## Task 2 Fix
+
+### What changed
+- 移除了 `Sources/NowThereCore/ClockFormatter.swift` 中把零偏移 `GMT` 改写成 `UTC` 的额外逻辑，恢复原有 formatter 语义。
+- 调整 `Tests/NowThereCoreTests/ClockViewModelTests.swift` 中受影响断言，改为使用稳定命名时区 `Asia/Tokyo` 验证 `setCustomLabel(_:)` 的持久化与标题刷新，不再依赖全局时区标签语义变化。
+- 新增清空标签状态覆盖：先设置标签，再调用 `setCustomLabel(\"\")`，断言空字符串被持久化，且菜单标题不再包含自定义标签。
+
+### Tests run and exact results
+- `HOME=/private/tmp CLANG_MODULE_CACHE_PATH=/private/tmp/nowthere-clang-cache SWIFT_MODULE_CACHE_PATH=/private/tmp/nowthere-swift-module-cache SWIFT_CACHE_DIR=/private/tmp/nowthere-swift-cache SWIFTPM_CACHE_PATH=/private/tmp/nowthere-swiftpm-cache SWIFT_USER_STATE_DIR=/private/tmp/nowthere-swift-user-state swift test --filter ClockViewModelTests`
+  - `Executed 11 tests, with 0 failures`
+- `HOME=/private/tmp CLANG_MODULE_CACHE_PATH=/private/tmp/nowthere-clang-cache SWIFT_MODULE_CACHE_PATH=/private/tmp/nowthere-swift-module-cache SWIFT_CACHE_DIR=/private/tmp/nowthere-swift-cache SWIFTPM_CACHE_PATH=/private/tmp/nowthere-swiftpm-cache SWIFT_USER_STATE_DIR=/private/tmp/nowthere-swift-user-state swift test --filter ClockFormatterTests`
+  - `Executed 7 tests, with 0 failures`
+
+### Files changed
+- `Sources/NowThereCore/ClockFormatter.swift`
+- `Tests/NowThereCoreTests/ClockViewModelTests.swift`
+- `.superpowers/sdd/task-2-report.md`
+
+### Any concerns
+- 无新的实现风险；本次修正仅回退超 scope 的 formatter 语义变更，并补齐 view model 状态测试覆盖。
