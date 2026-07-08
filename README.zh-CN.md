@@ -116,3 +116,7 @@ true
 ## 当前范围
 
 NowThere 当前专注于一个选定时区。它暂不支持多个时钟、秒级更新或自定义格式模板。
+
+## License
+
+NowThere 使用 MIT License 发布。详见 [LICENSE](LICENSE)。

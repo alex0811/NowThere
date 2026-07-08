@@ -116,3 +116,7 @@ true
 ## Current Scope
 
 NowThere currently focuses on one selected time zone. It does not support multiple clocks, second-level updates, or custom format templates.
+
+## License
+
+NowThere is released under the MIT License. See [LICENSE](LICENSE).
