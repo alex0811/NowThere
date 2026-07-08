@@ -123,6 +123,17 @@ struct MenuBarContentView: View {
             }
             .pickerStyle(.menu)
 
+            Picker("Time Format", selection: Binding(
+                get: { viewModel.timeFormat },
+                set: { viewModel.setTimeFormat($0) }
+            )) {
+                ForEach(TimeFormat.allCases) { timeFormat in
+                    Text(timeFormat.displayName)
+                        .tag(timeFormat)
+                }
+            }
+            .pickerStyle(.menu)
+
             Toggle("City/Label", isOn: fieldBinding(.city))
             Toggle("Date", isOn: fieldBinding(.date))
             Toggle("Weekday", isOn: fieldBinding(.weekday))
