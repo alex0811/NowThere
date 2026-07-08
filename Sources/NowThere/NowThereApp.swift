@@ -1,27 +1,36 @@
-import NowThereCore
 import AppKit
+import NowThereCore
 import SwiftUI
 
 @MainActor
 @main
 struct NowThereApp: App {
-    @StateObject private var viewModel: ClockViewModel
-
-    init() {
-        _viewModel = StateObject(
-            wrappedValue: ClockViewModel(loginItemManager: SystemLoginItemManager())
-        )
-    }
+    @NSApplicationDelegateAdaptor(NowThereAppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        MenuBarExtra {
-            MenuBarContentView(viewModel: viewModel)
-        } label: {
-            NowThereMenuBarLabel.view(for: viewModel)
+        Settings {
+            EmptyView()
         }
-        .menuBarExtraStyle(.window)
     }
 }
+
+@MainActor
+final class NowThereAppDelegate: NSObject, NSApplicationDelegate {
+    private var statusBarController: NowThereStatusBarController?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let viewModel = ClockViewModel(loginItemManager: SystemLoginItemManager())
+        statusBarController = NowThereStatusBarController(viewModel: viewModel)
+    }
+}
+
+@MainActor
+protocol MenuBarTitleDisplaying: AnyObject {
+    var title: String { get set }
+    var font: NSFont? { get set }
+}
+
+extension NSStatusBarButton: MenuBarTitleDisplaying {}
 
 enum NowThereMenuBarLabel {
     @MainActor
@@ -30,9 +39,12 @@ enum NowThereMenuBarLabel {
     }
 
     @MainActor
-    static func view(for viewModel: ClockViewModel) -> some View {
-        Text(title(for: viewModel))
-            .font(.system(size: NSFont.systemFontSize(for: .regular), weight: .regular))
-            .foregroundStyle(.primary)
+    static func configure(_ display: MenuBarTitleDisplaying?, title: String) {
+        guard let display else {
+            return
+        }
+
+        display.title = title
+        display.font = NSFont.menuBarFont(ofSize: 0)
     }
 }

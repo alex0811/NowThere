@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import NowThere
 @testable import NowThereCore
@@ -39,23 +40,15 @@ final class MenuBarTitleTests: XCTestCase {
         XCTAssertEqual(NowThereMenuBarLabel.title(for: viewModel), "Work Tokyo Jul 08 Wed 12:34")
     }
 
-    func testMenuBarLabelViewCanBeBuiltFromViewModel() throws {
-        let defaults = makeDefaults()
-        let store = TimeZoneStore(defaults: defaults)
-        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
-        store.saveTimeZone(tokyo)
+    func testMenuBarLabelConfiguresNativeStatusButtonAppearance() {
+        let display = FakeMenuBarTitleDisplay()
 
-        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
-        let viewModel = ClockViewModel(
-            store: store,
-            loginItemManager: FakeLoginItemManager(isEnabled: false),
-            nowProvider: { date },
-            startsTimer: false
-        )
+        NowThereMenuBarLabel.configure(display, title: "Tokyo Jul 08 Wed 12:34")
 
-        _ = NowThereMenuBarLabel.view(for: viewModel)
-
-        XCTAssertEqual(NowThereMenuBarLabel.title(for: viewModel), "Tokyo Jul 08 Wed 12:34")
+        let expectedFont = NSFont.menuBarFont(ofSize: 0)
+        XCTAssertEqual(display.title, "Tokyo Jul 08 Wed 12:34")
+        XCTAssertEqual(display.font?.fontName, expectedFont.fontName)
+        XCTAssertEqual(display.font?.pointSize, expectedFont.pointSize)
     }
 
     private func makeDefaults() -> UserDefaults {
@@ -97,4 +90,9 @@ private final class FakeLoginItemManager: LoginItemManaging {
     func setEnabled(_ enabled: Bool) throws {
         isEnabled = enabled
     }
+}
+
+private final class FakeMenuBarTitleDisplay: MenuBarTitleDisplaying {
+    var title = ""
+    var font: NSFont?
 }
