@@ -8,6 +8,7 @@ final class NowThereStatusBarController: NSObject {
     private let viewModel: ClockViewModel
     private let statusItem: NSStatusItem
     private let popover: NSPopover
+    private let notificationCenter: NotificationCenter
     private let activateApp: () -> Void
     private var viewModelCancellable: AnyCancellable?
 
@@ -15,6 +16,7 @@ final class NowThereStatusBarController: NSObject {
         viewModel: ClockViewModel,
         statusItem: NSStatusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength),
         popover: NSPopover = NSPopover(),
+        notificationCenter: NotificationCenter = .default,
         activateApp: @escaping () -> Void = {
             NSApp.activate(ignoringOtherApps: true)
         }
@@ -22,12 +24,18 @@ final class NowThereStatusBarController: NSObject {
         self.viewModel = viewModel
         self.statusItem = statusItem
         self.popover = popover
+        self.notificationCenter = notificationCenter
         self.activateApp = activateApp
         super.init()
 
         configureStatusItem()
         configurePopover()
         observeViewModel()
+        observeApplicationActivation()
+    }
+
+    deinit {
+        notificationCenter.removeObserver(self)
     }
 
     private func configureStatusItem() {
@@ -59,8 +67,21 @@ final class NowThereStatusBarController: NSObject {
         }
     }
 
+    private func observeApplicationActivation() {
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(applicationDidResignActive(_:)),
+            name: NSApplication.didResignActiveNotification,
+            object: nil
+        )
+    }
+
     private func updateTitle(_ title: String) {
         NowThereMenuBarLabel.configure(statusItem.button, title: title)
+    }
+
+    @objc private func applicationDidResignActive(_ notification: Notification) {
+        popover.performClose(nil)
     }
 
     @objc private func togglePopover(_ sender: NSStatusBarButton) {

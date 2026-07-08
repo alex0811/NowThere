@@ -114,6 +114,38 @@ final class MenuBarTitleTests: XCTestCase {
         _ = controller
     }
 
+    func testStatusBarControllerClosesPopoverWhenApplicationResignsActiveAfterRefresh() throws {
+        let defaults = makeDefaults()
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { Date(timeIntervalSince1970: 0) },
+            startsTimer: false
+        )
+        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer {
+            NSStatusBar.system.removeStatusItem(statusItem)
+        }
+        let popover = FakePopover()
+        let notificationCenter = NotificationCenter()
+        let controller = NowThereStatusBarController(
+            viewModel: viewModel,
+            statusItem: statusItem,
+            popover: popover,
+            notificationCenter: notificationCenter,
+            activateApp: {}
+        )
+
+        try XCTUnwrap(statusItem.button).performClick(nil)
+        viewModel.setInterfaceLanguage(.simplifiedChinese)
+        notificationCenter.post(name: NSApplication.didResignActiveNotification, object: NSApp)
+
+        XCTAssertEqual(popover.closeCount, 1)
+        _ = controller
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "NowThereAppTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -164,6 +196,7 @@ private final class FakeMenuBarTitleDisplay: MenuBarTitleDisplaying {
 
 private final class FakePopover: NSPopover {
     var showCount = 0
+    var closeCount = 0
 
     override func show(
         relativeTo positioningRect: NSRect,
@@ -171,5 +204,9 @@ private final class FakePopover: NSPopover {
         preferredEdge: NSRectEdge
     ) {
         showCount += 1
+    }
+
+    override func performClose(_ sender: Any?) {
+        closeCount += 1
     }
 }

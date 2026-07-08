@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Your menu bar knows local time. Now it knows there.
+Your menu bar knows local time. Now it knows there too.
 
-A native macOS menu bar clock for keeping one important time zone visible at a glance.
+NowThere is a native macOS menu bar clock for keeping one important time zone visible at a glance, with a localized, configurable title that stays out of the Dock.
 
 `scripts/build-app-bundle.sh debug` | `open .build/debug/NowThere.app`
 
@@ -14,7 +14,7 @@ A native macOS menu bar clock for keeping one important time zone visible at a g
 
 Remote teams, travel plans, releases, calls, and friends rarely live in your local time zone. NowThere keeps one chosen place in the macOS menu bar, formatted for quick scanning without opening Calendar, Clock, or a browser tab.
 
-It is intentionally small: one selected time zone, a compact title, searchable system time zones, and a menu for the details you need.
+It is intentionally small: one selected time zone, a compact title, searchable system time zones, localized English, Simplified Chinese, and Japanese UI, and a menu for the details you need.
 
 ## Highlights
 
@@ -43,6 +43,19 @@ Toggle each title field independently:
 
 If every field is hidden, NowThere falls back to the app name instead of leaving an empty menu bar item.
 
+Choose the title style that scans best for you:
+
+- Default
+- Time First
+- Separated
+- Bracketed
+
+Use 24-hour or 12-hour time, and add a custom label such as `Work`, `Home`, or a client name.
+
+### Use your language
+
+Switch the app interface between System, English, Simplified Chinese, and Japanese. The menu UI and menu bar date/weekday text update together.
+
 ### Details on click
 
 Open the menu to see the selected time zone's full details:
@@ -56,7 +69,7 @@ Open the menu to see the selected time zone's full details:
 
 ### Native macOS
 
-NowThere is a small SwiftUI menu bar app. It uses `MenuBarExtra`, stores preferences in `UserDefaults`, and packages as an `LSUIElement` app so it does not appear in the Dock.
+NowThere is a small AppKit + SwiftUI menu bar app. It uses a native `NSStatusItem` and transient popover, stores preferences in `UserDefaults`, supports launch at login, and packages as an `LSUIElement` app so it does not appear in the Dock.
 
 ## Install
 
