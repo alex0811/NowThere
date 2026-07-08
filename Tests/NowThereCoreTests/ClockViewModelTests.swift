@@ -112,6 +112,46 @@ final class ClockViewModelTests: XCTestCase {
         XCTAssertEqual(store.loadTitleStyle(), .bracketed)
     }
 
+    func testInitialStateUsesStoredTimeFormat() throws {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        store.saveTimeZone(tokyo)
+        store.saveTimeFormat(.twelveHour)
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        XCTAssertEqual(viewModel.timeFormat, .twelveHour)
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34 PM")
+        XCTAssertEqual(viewModel.details.time, "12:34 PM")
+    }
+
+    func testSettingTimeFormatPersistsAndRefreshesTitleAndDetails() throws {
+        let defaults = makeDefaults()
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        viewModel.setTimeFormat(.twelveHour)
+
+        XCTAssertEqual(viewModel.timeFormat, .twelveHour)
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34 PM")
+        XCTAssertEqual(viewModel.details.time, "12:34 PM")
+        XCTAssertEqual(store.loadTimeFormat(), .twelveHour)
+    }
+
     func testClearingCustomLabelPersistsEmptyValueAndRemovesItFromTitle() throws {
         let defaults = makeDefaults()
         let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))

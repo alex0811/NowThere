@@ -104,6 +104,34 @@ final class TimeZoneStoreTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.titleStyle), TitleStyle.standard.rawValue)
     }
 
+    func testLoadTimeFormatDefaultsToTwentyFourHour() {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+
+        XCTAssertEqual(store.loadTimeFormat(), .twentyFourHour)
+    }
+
+    func testSaveTimeFormatPersistsValue() {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+
+        store.saveTimeFormat(.twelveHour)
+
+        XCTAssertEqual(store.loadTimeFormat(), .twelveHour)
+        XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.timeFormat), "twelveHour")
+    }
+
+    func testLoadTimeFormatRewritesInvalidSavedValueToTwentyFourHour() {
+        let defaults = makeDefaults()
+        defaults.set("system", forKey: TimeZoneStoreKeys.timeFormat)
+        let store = TimeZoneStore(defaults: defaults)
+
+        let loaded = store.loadTimeFormat()
+
+        XCTAssertEqual(loaded, .twentyFourHour)
+        XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.timeFormat), TimeFormat.twentyFourHour.rawValue)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "NowThereTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

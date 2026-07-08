@@ -61,6 +61,7 @@ public final class ClockViewModel: ObservableObject {
     @Published public private(set) var visibility: FieldVisibility
     @Published public private(set) var customLabel: String
     @Published public private(set) var titleStyle: TitleStyle
+    @Published public private(set) var timeFormat: TimeFormat
     @Published public private(set) var menuTitle: String
     @Published public private(set) var isLaunchAtLoginEnabled: Bool
     @Published public private(set) var launchAtLoginErrorMessage: String?
@@ -111,19 +112,22 @@ public final class ClockViewModel: ObservableObject {
         let loadedVisibility = store.loadVisibility()
         let loadedCustomLabel = store.loadCustomLabel()
         let loadedTitleStyle = store.loadTitleStyle()
+        let loadedTimeFormat = store.loadTimeFormat()
         let initialDate = nowProvider()
 
         self.selectedTimeZone = loadedTimeZone
         self.visibility = loadedVisibility
         self.customLabel = loadedCustomLabel
         self.titleStyle = loadedTitleStyle
+        self.timeFormat = loadedTimeFormat
         self.now = initialDate
         self.menuTitle = formatter.title(
             for: initialDate,
             timeZone: loadedTimeZone,
             visibility: loadedVisibility,
             customLabel: loadedCustomLabel,
-            titleStyle: loadedTitleStyle
+            titleStyle: loadedTitleStyle,
+            timeFormat: loadedTimeFormat
         )
         self.isLaunchAtLoginEnabled = loginItemManager.isEnabled
         self.launchAtLoginErrorMessage = nil
@@ -134,7 +138,7 @@ public final class ClockViewModel: ObservableObject {
     }
 
     public var details: ClockDetails {
-        formatter.details(for: now, timeZone: selectedTimeZone)
+        formatter.details(for: now, timeZone: selectedTimeZone, timeFormat: timeFormat)
     }
 
     public func refresh() {
@@ -144,7 +148,8 @@ public final class ClockViewModel: ObservableObject {
             timeZone: selectedTimeZone,
             visibility: visibility,
             customLabel: customLabel,
-            titleStyle: titleStyle
+            titleStyle: titleStyle,
+            timeFormat: timeFormat
         )
     }
 
@@ -167,6 +172,12 @@ public final class ClockViewModel: ObservableObject {
     public func setTitleStyle(_ titleStyle: TitleStyle) {
         self.titleStyle = titleStyle
         store.saveTitleStyle(titleStyle)
+        refresh()
+    }
+
+    public func setTimeFormat(_ timeFormat: TimeFormat) {
+        self.timeFormat = timeFormat
+        store.saveTimeFormat(timeFormat)
         refresh()
     }
 
