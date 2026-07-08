@@ -59,6 +59,23 @@ final class TimeZoneStoreTests: XCTestCase {
         XCTAssertEqual(loaded, saved)
     }
 
+    func testLoadCustomLabelDefaultsToEmptyString() {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+
+        XCTAssertEqual(store.loadCustomLabel(), "")
+    }
+
+    func testSaveCustomLabelPersistsValue() {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+
+        store.saveCustomLabel("Work")
+
+        XCTAssertEqual(store.loadCustomLabel(), "Work")
+        XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.customLabel), "Work")
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "NowThereTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

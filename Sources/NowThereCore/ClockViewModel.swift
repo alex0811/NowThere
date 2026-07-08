@@ -59,6 +59,7 @@ public final class ClockViewModel: ObservableObject {
     @Published public private(set) var selectedTimeZone: TimeZone
     @Published public private(set) var now: Date
     @Published public private(set) var visibility: FieldVisibility
+    @Published public private(set) var customLabel: String
     @Published public private(set) var menuTitle: String
     @Published public private(set) var isLaunchAtLoginEnabled: Bool
     @Published public private(set) var launchAtLoginErrorMessage: String?
@@ -107,15 +108,18 @@ public final class ClockViewModel: ObservableObject {
 
         let loadedTimeZone = store.loadTimeZone()
         let loadedVisibility = store.loadVisibility()
+        let loadedCustomLabel = store.loadCustomLabel()
         let initialDate = nowProvider()
 
         self.selectedTimeZone = loadedTimeZone
         self.visibility = loadedVisibility
+        self.customLabel = loadedCustomLabel
         self.now = initialDate
         self.menuTitle = formatter.title(
             for: initialDate,
             timeZone: loadedTimeZone,
-            visibility: loadedVisibility
+            visibility: loadedVisibility,
+            customLabel: loadedCustomLabel
         )
         self.isLaunchAtLoginEnabled = loginItemManager.isEnabled
         self.launchAtLoginErrorMessage = nil
@@ -134,7 +138,8 @@ public final class ClockViewModel: ObservableObject {
         menuTitle = formatter.title(
             for: now,
             timeZone: selectedTimeZone,
-            visibility: visibility
+            visibility: visibility,
+            customLabel: customLabel
         )
     }
 
@@ -145,6 +150,12 @@ public final class ClockViewModel: ObservableObject {
 
         selectedTimeZone = timeZone
         store.saveTimeZone(timeZone)
+        refresh()
+    }
+
+    public func setCustomLabel(_ label: String) {
+        customLabel = label
+        store.saveCustomLabel(label)
         refresh()
     }
 

@@ -14,6 +14,7 @@ final class ClockViewModelTests: XCTestCase {
             showsWeekday: false,
             showsTime: true
         ))
+        store.saveCustomLabel("Work")
         let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
 
         let viewModel = ClockViewModel(
@@ -30,7 +31,8 @@ final class ClockViewModelTests: XCTestCase {
             showsWeekday: false,
             showsTime: true
         ))
-        XCTAssertEqual(viewModel.menuTitle, "Tokyo 12:34")
+        XCTAssertEqual(viewModel.customLabel, "Work")
+        XCTAssertEqual(viewModel.menuTitle, "Work Tokyo 12:34")
         XCTAssertTrue(viewModel.isLaunchAtLoginEnabled)
     }
 
@@ -51,6 +53,25 @@ final class ClockViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedTimeZone.identifier, "Asia/Tokyo")
         XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34")
         XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.selectedTimeZoneIdentifier), "Asia/Tokyo")
+    }
+
+    func testSettingCustomLabelPersistsAndRefreshesTitle() throws {
+        let defaults = makeDefaults()
+        let utc = try XCTUnwrap(TimeZone(identifier: "UTC"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { utc })
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        viewModel.setCustomLabel("Work")
+
+        XCTAssertEqual(viewModel.customLabel, "Work")
+        XCTAssertEqual(viewModel.menuTitle, "Work UTC Jul 08 Wed 03:34")
+        XCTAssertEqual(store.loadCustomLabel(), "Work")
     }
 
     func testInvalidTimeZoneSelectionDoesNotChangeState() throws {
@@ -94,6 +115,27 @@ final class ClockViewModelTests: XCTestCase {
             showsWeekday: false,
             showsTime: false
         ))
+    }
+
+    func testCustomLabelIsShownWhenAllFieldsAreHidden() throws {
+        let defaults = makeDefaults()
+        let utc = try XCTUnwrap(TimeZone(identifier: "UTC"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { utc })
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        viewModel.setCustomLabel("Work")
+        viewModel.setField(.city, isVisible: false)
+        viewModel.setField(.date, isVisible: false)
+        viewModel.setField(.weekday, isVisible: false)
+        viewModel.setField(.time, isVisible: false)
+
+        XCTAssertEqual(viewModel.menuTitle, "Work")
     }
 
     func testLaunchAtLoginFailureRollsBackToActualStateAndShowsMessage() {
