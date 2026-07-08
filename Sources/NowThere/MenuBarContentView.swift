@@ -20,7 +20,7 @@ struct MenuBarContentView: View {
 
             Divider()
 
-            Button("Quit NowThere") {
+            Button(AppLocalization.string(.commandQuit)) {
                 NSApplication.shared.terminate(nil)
             }
         }
@@ -35,26 +35,26 @@ struct MenuBarContentView: View {
             Text(details.label)
                 .font(.headline)
 
-            detailRow(label: "Time Zone", value: details.identifier)
-            detailRow(label: "Date", value: details.fullDate)
-            detailRow(label: "Weekday", value: details.fullWeekday)
-            detailRow(label: "Time", value: details.time)
-            detailRow(label: "UTC Offset", value: details.utcOffset)
+            detailRow(label: AppLocalization.string(.detailsTimeZone), value: details.identifier)
+            detailRow(label: AppLocalization.string(.detailsDate), value: details.fullDate)
+            detailRow(label: AppLocalization.string(.detailsWeekday), value: details.fullWeekday)
+            detailRow(label: AppLocalization.string(.detailsTime), value: details.time)
+            detailRow(label: AppLocalization.string(.detailsUTCOffset), value: details.utcOffset)
         }
     }
 
     private var timeZoneSearchSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Time Zone")
+            Text(AppLocalization.string(.searchTitle))
                 .font(.headline)
 
-            TextField("Search city or time zone", text: $searchText)
+            TextField(AppLocalization.string(.searchPlaceholder), text: $searchText)
                 .textFieldStyle(.roundedBorder)
 
             let results: [TimeZoneSearchResult] = viewModel.searchResults(matching: searchText)
 
             if results.isEmpty {
-                Text("No matching time zones")
+                Text(AppLocalization.string(.searchEmpty))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 8)
@@ -95,14 +95,14 @@ struct MenuBarContentView: View {
 
     private var settingsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Menu Bar Fields")
+            Text(AppLocalization.string(.settingsMenuBarFields))
                 .font(.headline)
 
             HStack {
-                Text("Custom Label")
+                Text(AppLocalization.string(.settingsCustomLabel))
                 Spacer()
                 TextField(
-                    "Work, Home, Client",
+                    AppLocalization.string(.settingsCustomLabelPlaceholder),
                     text: Binding(
                         get: { viewModel.customLabel },
                         set: { viewModel.setCustomLabel($0) }
@@ -112,36 +112,36 @@ struct MenuBarContentView: View {
                 .frame(width: 190)
             }
 
-            Picker("Title Style", selection: Binding(
+            Picker(AppLocalization.string(.settingsTitleStyle), selection: Binding(
                 get: { viewModel.titleStyle },
                 set: { viewModel.setTitleStyle($0) }
             )) {
                 ForEach(TitleStyle.allCases) { titleStyle in
-                    Text(titleStyle.displayName)
+                    Text(AppMenuLabels.titleStyleName(titleStyle))
                         .tag(titleStyle)
                 }
             }
             .pickerStyle(.menu)
 
-            Picker("Time Format", selection: Binding(
+            Picker(AppLocalization.string(.settingsTimeFormat), selection: Binding(
                 get: { viewModel.timeFormat },
                 set: { viewModel.setTimeFormat($0) }
             )) {
                 ForEach(TimeFormat.allCases) { timeFormat in
-                    Text(timeFormat.displayName)
+                    Text(AppMenuLabels.timeFormatName(timeFormat))
                         .tag(timeFormat)
                 }
             }
             .pickerStyle(.menu)
 
-            Toggle("City/Label", isOn: fieldBinding(.city))
-            Toggle("Date", isOn: fieldBinding(.date))
-            Toggle("Weekday", isOn: fieldBinding(.weekday))
-            Toggle("Time", isOn: fieldBinding(.time))
+            Toggle(AppMenuLabels.clockFieldName(.city), isOn: fieldBinding(.city))
+            Toggle(AppMenuLabels.clockFieldName(.date), isOn: fieldBinding(.date))
+            Toggle(AppMenuLabels.clockFieldName(.weekday), isOn: fieldBinding(.weekday))
+            Toggle(AppMenuLabels.clockFieldName(.time), isOn: fieldBinding(.time))
 
             Divider()
 
-            Toggle("Launch at Login", isOn: Binding(
+            Toggle(AppLocalization.string(.settingsLaunchAtLogin), isOn: Binding(
                 get: { viewModel.isLaunchAtLoginEnabled },
                 set: { viewModel.setLaunchAtLogin($0) }
             ))

@@ -1,4 +1,5 @@
 import Foundation
+import NowThereCore
 
 enum AppLocalizationKey: String, CaseIterable {
     case detailsTimeZone = "details.timeZone"
@@ -64,6 +65,67 @@ enum AppLocalization {
             return plist as? [String: String] ?? [:]
         } catch {
             return [:]
+        }
+    }
+}
+
+enum AppMenuLabels {
+    static func titleStyleName(_ titleStyle: TitleStyle) -> String {
+        AppLocalization.string(localizationKey(for: titleStyle))
+    }
+
+    static func titleStyleName(_ titleStyle: TitleStyle, localization: String) -> String {
+        AppLocalization.string(localizationKey(for: titleStyle), localization: localization)
+    }
+
+    static func timeFormatName(_ timeFormat: TimeFormat) -> String {
+        AppLocalization.string(localizationKey(for: timeFormat))
+    }
+
+    static func timeFormatName(_ timeFormat: TimeFormat, localization: String) -> String {
+        AppLocalization.string(localizationKey(for: timeFormat), localization: localization)
+    }
+
+    static func clockFieldName(_ field: ClockField) -> String {
+        AppLocalization.string(localizationKey(for: field))
+    }
+
+    static func clockFieldName(_ field: ClockField, localization: String) -> String {
+        AppLocalization.string(localizationKey(for: field), localization: localization)
+    }
+
+    private static func localizationKey(for titleStyle: TitleStyle) -> AppLocalizationKey {
+        switch titleStyle {
+        case .standard:
+            .settingsTitleStyleStandard
+        case .timeFirst:
+            .settingsTitleStyleTimeFirst
+        case .separated:
+            .settingsTitleStyleSeparated
+        case .bracketed:
+            .settingsTitleStyleBracketed
+        }
+    }
+
+    private static func localizationKey(for timeFormat: TimeFormat) -> AppLocalizationKey {
+        switch timeFormat {
+        case .twentyFourHour:
+            .settingsTimeFormatTwentyFourHour
+        case .twelveHour:
+            .settingsTimeFormatTwelveHour
+        }
+    }
+
+    private static func localizationKey(for field: ClockField) -> AppLocalizationKey {
+        switch field {
+        case .city:
+            .settingsFieldCityLabel
+        case .date:
+            .settingsFieldDate
+        case .weekday:
+            .settingsFieldWeekday
+        case .time:
+            .settingsFieldTime
         }
     }
 }
