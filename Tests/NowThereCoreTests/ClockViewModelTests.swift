@@ -187,7 +187,7 @@ final class ClockViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.interfaceLanguage, .simplifiedChinese)
         XCTAssertEqual(store.loadInterfaceLanguage(), .simplifiedChinese)
-        XCTAssertEqual(viewModel.menuTitle, "Tokyo 7月 08 周三 12:34")
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo 7月8日 周三 12:34")
     }
 
     func testClearingCustomLabelPersistsEmptyValueAndRemovesItFromTitle() throws {

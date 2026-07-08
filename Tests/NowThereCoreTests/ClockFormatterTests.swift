@@ -12,6 +12,22 @@ final class ClockFormatterTests: XCTestCase {
         XCTAssertEqual(title, "Tokyo Jul 08 Wed 12:34")
     }
 
+    func testTitleUsesChineseShortDateWithoutSpace() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: .allVisible,
+            customLabel: "",
+            locale: Locale(identifier: "zh-Hans")
+        )
+
+        XCTAssertEqual(title, "Tokyo 7月8日 周三 12:34")
+    }
+
     func testTitleRespectsHiddenFields() throws {
         let formatter = ClockFormatter()
         let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)

@@ -84,7 +84,7 @@ public final class ClockFormatter {
         }
 
         if visibility.showsDate {
-            nonTimeParts.append(format(date, format: "MMM dd", timeZone: timeZone, locale: titleLocale))
+            nonTimeParts.append(format(date, format: shortDateFormat(for: titleLocale), timeZone: timeZone, locale: titleLocale))
         }
 
         if visibility.showsWeekday {
@@ -168,6 +168,10 @@ public final class ClockFormatter {
         formatter.timeZone = timeZone
         formatter.dateFormat = format
         return formatter.string(from: date)
+    }
+
+    private func shortDateFormat(for locale: Locale) -> String {
+        locale.identifier.lowercased().hasPrefix("zh") ? "M月d日" : "MMM dd"
     }
 
     private func utcOffset(for date: Date, timeZone: TimeZone) -> String {
