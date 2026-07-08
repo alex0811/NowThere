@@ -73,4 +73,19 @@ final class AppLocalizationTests: XCTestCase {
         XCTAssertEqual(AppMenuLabels.clockFieldName(.weekday, localization: "ja"), "曜日")
         XCTAssertEqual(AppMenuLabels.clockFieldName(.time, localization: "ja"), "時刻")
     }
+
+    func testLaunchAtLoginErrorLabelsResolveInSupportedLocalizations() {
+        XCTAssertEqual(
+            AppMenuLabels.launchAtLoginErrorMessage(.updateFailed, localization: "en"),
+            "Could not update launch setting"
+        )
+        XCTAssertEqual(
+            AppMenuLabels.launchAtLoginErrorMessage(.updateFailed, localization: "zh-Hans"),
+            "无法更新启动设置"
+        )
+        XCTAssertEqual(
+            AppMenuLabels.launchAtLoginErrorMessage(.updateFailed, localization: "ja"),
+            "起動設定を更新できませんでした"
+        )
+    }
 }

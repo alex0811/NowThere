@@ -146,8 +146,8 @@ struct MenuBarContentView: View {
                 set: { viewModel.setLaunchAtLogin($0) }
             ))
 
-            if let message = viewModel.launchAtLoginErrorMessage {
-                Text(message)
+            if let error = viewModel.launchAtLoginError {
+                Text(AppMenuLabels.launchAtLoginErrorMessage(error))
                     .font(.caption)
                     .foregroundStyle(.red)
             }

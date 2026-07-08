@@ -250,6 +250,7 @@ final class ClockViewModelTests: XCTestCase {
         viewModel.setLaunchAtLogin(true)
 
         XCTAssertFalse(viewModel.isLaunchAtLoginEnabled)
+        XCTAssertEqual(viewModel.launchAtLoginError, .updateFailed)
         XCTAssertEqual(viewModel.launchAtLoginErrorMessage, "Could not update launch setting")
     }
 

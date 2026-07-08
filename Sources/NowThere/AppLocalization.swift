@@ -94,6 +94,17 @@ enum AppMenuLabels {
         AppLocalization.string(localizationKey(for: field), localization: localization)
     }
 
+    static func launchAtLoginErrorMessage(_ error: LaunchAtLoginError) -> String {
+        AppLocalization.string(localizationKey(for: error))
+    }
+
+    static func launchAtLoginErrorMessage(
+        _ error: LaunchAtLoginError,
+        localization: String
+    ) -> String {
+        AppLocalization.string(localizationKey(for: error), localization: localization)
+    }
+
     private static func localizationKey(for titleStyle: TitleStyle) -> AppLocalizationKey {
         switch titleStyle {
         case .standard:
@@ -126,6 +137,13 @@ enum AppMenuLabels {
             .settingsFieldWeekday
         case .time:
             .settingsFieldTime
+        }
+    }
+
+    private static func localizationKey(for error: LaunchAtLoginError) -> AppLocalizationKey {
+        switch error {
+        case .updateFailed:
+            .launchAtLoginErrorUpdateFailed
         }
     }
 }

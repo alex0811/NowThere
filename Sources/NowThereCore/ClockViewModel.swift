@@ -13,6 +13,10 @@ public protocol LoginItemManaging: AnyObject {
     func setEnabled(_ enabled: Bool) throws
 }
 
+public enum LaunchAtLoginError: Equatable, Sendable {
+    case updateFailed
+}
+
 internal protocol ClockTimerScheduling: AnyObject {
     func schedule(after interval: TimeInterval, repeats: Bool, action: @escaping () -> Void)
 }
@@ -64,7 +68,7 @@ public final class ClockViewModel: ObservableObject {
     @Published public private(set) var timeFormat: TimeFormat
     @Published public private(set) var menuTitle: String
     @Published public private(set) var isLaunchAtLoginEnabled: Bool
-    @Published public private(set) var launchAtLoginErrorMessage: String?
+    @Published public private(set) var launchAtLoginError: LaunchAtLoginError?
 
     private let store: TimeZoneStore
     private let formatter: ClockFormatter
@@ -130,7 +134,7 @@ public final class ClockViewModel: ObservableObject {
             timeFormat: loadedTimeFormat
         )
         self.isLaunchAtLoginEnabled = loginItemManager.isEnabled
-        self.launchAtLoginErrorMessage = nil
+        self.launchAtLoginError = nil
 
         if startsTimer {
             startTimer()
@@ -208,11 +212,19 @@ public final class ClockViewModel: ObservableObject {
         do {
             try loginItemManager.setEnabled(enabled)
             isLaunchAtLoginEnabled = loginItemManager.isEnabled
-            launchAtLoginErrorMessage = nil
+            launchAtLoginError = nil
         } catch {
             isLaunchAtLoginEnabled = loginItemManager.isEnabled
-            launchAtLoginErrorMessage = "Could not update launch setting"
+            launchAtLoginError = .updateFailed
         }
+    }
+
+    public var launchAtLoginErrorMessage: String? {
+        guard launchAtLoginError != nil else {
+            return nil
+        }
+
+        return "Could not update launch setting"
     }
 
     private func startTimer() {
