@@ -28,6 +28,7 @@ final class NowThereAppDelegate: NSObject, NSApplicationDelegate {
 protocol MenuBarTitleDisplaying: AnyObject {
     var title: String { get set }
     var font: NSFont? { get set }
+    var attributedTitle: NSAttributedString { get set }
 }
 
 extension NSStatusBarButton: MenuBarTitleDisplaying {}
@@ -46,5 +47,12 @@ enum NowThereMenuBarLabel {
 
         display.title = title
         display.font = NSFont.menuBarFont(ofSize: 0)
+        display.attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [
+                .font: NSFont.menuBarFont(ofSize: 0),
+                .foregroundColor: NSColor.white
+            ]
+        )
     }
 }
