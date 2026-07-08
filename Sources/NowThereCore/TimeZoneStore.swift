@@ -3,6 +3,7 @@ import Foundation
 enum TimeZoneStoreKeys {
     static let selectedTimeZoneIdentifier = "selectedTimeZoneIdentifier"
     static let customLabel = "customLabel"
+    static let titleStyle = "titleStyle"
     static let showsCity = "fieldVisibility.showsCity"
     static let showsDate = "fieldVisibility.showsDate"
     static let showsWeekday = "fieldVisibility.showsWeekday"
@@ -45,6 +46,23 @@ public final class TimeZoneStore {
 
     public func saveCustomLabel(_ label: String) {
         defaults.set(label, forKey: TimeZoneStoreKeys.customLabel)
+    }
+
+    public func loadTitleStyle() -> TitleStyle {
+        guard let savedValue = defaults.string(forKey: TimeZoneStoreKeys.titleStyle) else {
+            return .standard
+        }
+
+        guard let titleStyle = TitleStyle(rawValue: savedValue) else {
+            saveTitleStyle(.standard)
+            return .standard
+        }
+
+        return titleStyle
+    }
+
+    public func saveTitleStyle(_ titleStyle: TitleStyle) {
+        defaults.set(titleStyle.rawValue, forKey: TimeZoneStoreKeys.titleStyle)
     }
 
     public func loadVisibility() -> FieldVisibility {
