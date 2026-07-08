@@ -51,6 +51,38 @@ final class MenuBarTitleTests: XCTestCase {
         XCTAssertEqual(display.font?.pointSize, expectedFont.pointSize)
     }
 
+    func testStatusBarControllerActivatesAppWhenShowingPopover() throws {
+        let defaults = makeDefaults()
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { Date(timeIntervalSince1970: 0) },
+            startsTimer: false
+        )
+        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer {
+            NSStatusBar.system.removeStatusItem(statusItem)
+        }
+        let popover = FakePopover()
+        var activationCount = 0
+        let controller = NowThereStatusBarController(
+            viewModel: viewModel,
+            statusItem: statusItem,
+            popover: popover,
+            activateApp: {
+                activationCount += 1
+            }
+        )
+
+        try XCTUnwrap(statusItem.button).performClick(nil)
+
+        XCTAssertEqual(popover.showCount, 1)
+        XCTAssertEqual(activationCount, 1)
+        _ = controller
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "NowThereAppTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -95,4 +127,16 @@ private final class FakeLoginItemManager: LoginItemManaging {
 private final class FakeMenuBarTitleDisplay: MenuBarTitleDisplaying {
     var title = ""
     var font: NSFont?
+}
+
+private final class FakePopover: NSPopover {
+    var showCount = 0
+
+    override func show(
+        relativeTo positioningRect: NSRect,
+        of positioningView: NSView,
+        preferredEdge: NSRectEdge
+    ) {
+        showCount += 1
+    }
 }

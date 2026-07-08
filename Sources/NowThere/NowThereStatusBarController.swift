@@ -8,16 +8,21 @@ final class NowThereStatusBarController: NSObject {
     private let viewModel: ClockViewModel
     private let statusItem: NSStatusItem
     private let popover: NSPopover
+    private let activateApp: () -> Void
     private var viewModelCancellable: AnyCancellable?
 
     init(
         viewModel: ClockViewModel,
         statusItem: NSStatusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength),
-        popover: NSPopover = NSPopover()
+        popover: NSPopover = NSPopover(),
+        activateApp: @escaping () -> Void = {
+            NSApp.activate(ignoringOtherApps: true)
+        }
     ) {
         self.viewModel = viewModel
         self.statusItem = statusItem
         self.popover = popover
+        self.activateApp = activateApp
         super.init()
 
         configureStatusItem()
@@ -65,5 +70,6 @@ final class NowThereStatusBarController: NSObject {
         }
 
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
+        activateApp()
     }
 }
