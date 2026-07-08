@@ -132,6 +132,34 @@ final class TimeZoneStoreTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.timeFormat), TimeFormat.twentyFourHour.rawValue)
     }
 
+    func testLoadInterfaceLanguageDefaultsToSystem() {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+
+        XCTAssertEqual(store.loadInterfaceLanguage(), .system)
+    }
+
+    func testSaveInterfaceLanguagePersistsValue() {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+
+        store.saveInterfaceLanguage(.simplifiedChinese)
+
+        XCTAssertEqual(store.loadInterfaceLanguage(), .simplifiedChinese)
+        XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.interfaceLanguage), "simplifiedChinese")
+    }
+
+    func testLoadInterfaceLanguageRewritesInvalidSavedValueToSystem() {
+        let defaults = makeDefaults()
+        defaults.set("klingon", forKey: TimeZoneStoreKeys.interfaceLanguage)
+        let store = TimeZoneStore(defaults: defaults)
+
+        let loaded = store.loadInterfaceLanguage()
+
+        XCTAssertEqual(loaded, .system)
+        XCTAssertEqual(defaults.string(forKey: TimeZoneStoreKeys.interfaceLanguage), InterfaceLanguage.system.rawValue)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "NowThereTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

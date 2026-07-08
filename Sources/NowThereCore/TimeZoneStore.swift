@@ -5,6 +5,7 @@ enum TimeZoneStoreKeys {
     static let customLabel = "customLabel"
     static let titleStyle = "titleStyle"
     static let timeFormat = "timeFormat"
+    static let interfaceLanguage = "interfaceLanguage"
     static let showsCity = "fieldVisibility.showsCity"
     static let showsDate = "fieldVisibility.showsDate"
     static let showsWeekday = "fieldVisibility.showsWeekday"
@@ -81,6 +82,23 @@ public final class TimeZoneStore {
 
     public func saveTimeFormat(_ timeFormat: TimeFormat) {
         defaults.set(timeFormat.rawValue, forKey: TimeZoneStoreKeys.timeFormat)
+    }
+
+    public func loadInterfaceLanguage() -> InterfaceLanguage {
+        guard let savedValue = defaults.string(forKey: TimeZoneStoreKeys.interfaceLanguage) else {
+            return .system
+        }
+
+        guard let interfaceLanguage = InterfaceLanguage(rawValue: savedValue) else {
+            saveInterfaceLanguage(.system)
+            return .system
+        }
+
+        return interfaceLanguage
+    }
+
+    public func saveInterfaceLanguage(_ interfaceLanguage: InterfaceLanguage) {
+        defaults.set(interfaceLanguage.rawValue, forKey: TimeZoneStoreKeys.interfaceLanguage)
     }
 
     public func loadVisibility() -> FieldVisibility {

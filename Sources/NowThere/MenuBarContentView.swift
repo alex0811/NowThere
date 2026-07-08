@@ -20,7 +20,7 @@ struct MenuBarContentView: View {
 
             Divider()
 
-            Button(AppLocalization.string(.commandQuit)) {
+            Button(localized(.commandQuit)) {
                 NSApplication.shared.terminate(nil)
             }
         }
@@ -35,26 +35,26 @@ struct MenuBarContentView: View {
             Text(details.label)
                 .font(.headline)
 
-            detailRow(label: AppLocalization.string(.detailsTimeZone), value: details.identifier)
-            detailRow(label: AppLocalization.string(.detailsDate), value: details.fullDate)
-            detailRow(label: AppLocalization.string(.detailsWeekday), value: details.fullWeekday)
-            detailRow(label: AppLocalization.string(.detailsTime), value: details.time)
-            detailRow(label: AppLocalization.string(.detailsUTCOffset), value: details.utcOffset)
+            detailRow(label: localized(.detailsTimeZone), value: details.identifier)
+            detailRow(label: localized(.detailsDate), value: details.fullDate)
+            detailRow(label: localized(.detailsWeekday), value: details.fullWeekday)
+            detailRow(label: localized(.detailsTime), value: details.time)
+            detailRow(label: localized(.detailsUTCOffset), value: details.utcOffset)
         }
     }
 
     private var timeZoneSearchSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(AppLocalization.string(.searchTitle))
+            Text(localized(.searchTitle))
                 .font(.headline)
 
-            TextField(AppLocalization.string(.searchPlaceholder), text: $searchText)
+            TextField(localized(.searchPlaceholder), text: $searchText)
                 .textFieldStyle(.roundedBorder)
 
             let results: [TimeZoneSearchResult] = viewModel.searchResults(matching: searchText)
 
             if results.isEmpty {
-                Text(AppLocalization.string(.searchEmpty))
+                Text(localized(.searchEmpty))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 8)
@@ -95,14 +95,14 @@ struct MenuBarContentView: View {
 
     private var settingsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(AppLocalization.string(.settingsMenuBarFields))
+            Text(localized(.settingsMenuBarFields))
                 .font(.headline)
 
             HStack {
-                Text(AppLocalization.string(.settingsCustomLabel))
+                Text(localized(.settingsCustomLabel))
                 Spacer()
                 TextField(
-                    AppLocalization.string(.settingsCustomLabelPlaceholder),
+                    localized(.settingsCustomLabelPlaceholder),
                     text: Binding(
                         get: { viewModel.customLabel },
                         set: { viewModel.setCustomLabel($0) }
@@ -112,42 +112,53 @@ struct MenuBarContentView: View {
                 .frame(width: 190)
             }
 
-            Picker(AppLocalization.string(.settingsTitleStyle), selection: Binding(
+            Picker(localized(.settingsLanguage), selection: Binding(
+                get: { viewModel.interfaceLanguage },
+                set: { viewModel.setInterfaceLanguage($0) }
+            )) {
+                ForEach(InterfaceLanguage.allCases) { language in
+                    Text(AppMenuLabels.interfaceLanguageName(language, language: viewModel.interfaceLanguage))
+                        .tag(language)
+                }
+            }
+            .pickerStyle(.menu)
+
+            Picker(localized(.settingsTitleStyle), selection: Binding(
                 get: { viewModel.titleStyle },
                 set: { viewModel.setTitleStyle($0) }
             )) {
                 ForEach(TitleStyle.allCases) { titleStyle in
-                    Text(AppMenuLabels.titleStyleName(titleStyle))
+                    Text(AppMenuLabels.titleStyleName(titleStyle, language: viewModel.interfaceLanguage))
                         .tag(titleStyle)
                 }
             }
             .pickerStyle(.menu)
 
-            Picker(AppLocalization.string(.settingsTimeFormat), selection: Binding(
+            Picker(localized(.settingsTimeFormat), selection: Binding(
                 get: { viewModel.timeFormat },
                 set: { viewModel.setTimeFormat($0) }
             )) {
                 ForEach(TimeFormat.allCases) { timeFormat in
-                    Text(AppMenuLabels.timeFormatName(timeFormat))
+                    Text(AppMenuLabels.timeFormatName(timeFormat, language: viewModel.interfaceLanguage))
                         .tag(timeFormat)
                 }
             }
             .pickerStyle(.menu)
 
-            Toggle(AppMenuLabels.clockFieldName(.city), isOn: fieldBinding(.city))
-            Toggle(AppMenuLabels.clockFieldName(.date), isOn: fieldBinding(.date))
-            Toggle(AppMenuLabels.clockFieldName(.weekday), isOn: fieldBinding(.weekday))
-            Toggle(AppMenuLabels.clockFieldName(.time), isOn: fieldBinding(.time))
+            Toggle(AppMenuLabels.clockFieldName(.city, language: viewModel.interfaceLanguage), isOn: fieldBinding(.city))
+            Toggle(AppMenuLabels.clockFieldName(.date, language: viewModel.interfaceLanguage), isOn: fieldBinding(.date))
+            Toggle(AppMenuLabels.clockFieldName(.weekday, language: viewModel.interfaceLanguage), isOn: fieldBinding(.weekday))
+            Toggle(AppMenuLabels.clockFieldName(.time, language: viewModel.interfaceLanguage), isOn: fieldBinding(.time))
 
             Divider()
 
-            Toggle(AppLocalization.string(.settingsLaunchAtLogin), isOn: Binding(
+            Toggle(localized(.settingsLaunchAtLogin), isOn: Binding(
                 get: { viewModel.isLaunchAtLoginEnabled },
                 set: { viewModel.setLaunchAtLogin($0) }
             ))
 
             if let error = viewModel.launchAtLoginError {
-                Text(AppMenuLabels.launchAtLoginErrorMessage(error))
+                Text(AppMenuLabels.launchAtLoginErrorMessage(error, language: viewModel.interfaceLanguage))
                     .font(.caption)
                     .foregroundStyle(.red)
             }
@@ -163,6 +174,10 @@ struct MenuBarContentView: View {
                 .multilineTextAlignment(.trailing)
         }
         .font(.subheadline)
+    }
+
+    private func localized(_ key: AppLocalizationKey) -> String {
+        AppLocalization.string(key, language: viewModel.interfaceLanguage)
     }
 
     private func fieldBinding(_ field: ClockField) -> Binding<Bool> {

@@ -29,6 +29,26 @@ final class AppLocalizationTests: XCTestCase {
         XCTAssertEqual(AppLocalization.string(.searchPlaceholder, localization: "ja"), "都市またはタイムゾーンを検索")
     }
 
+    func testStaticMenuStringsResolveUsingSelectedInterfaceLanguage() {
+        XCTAssertEqual(AppLocalization.string(.commandQuit, language: .english), "Quit NowThere")
+        XCTAssertEqual(AppLocalization.string(.commandQuit, language: .simplifiedChinese), "退出 NowThere")
+        XCTAssertEqual(AppLocalization.string(.commandQuit, language: .japanese), "NowThere を終了")
+    }
+
+    func testInterfaceLanguageLabelsResolveInSupportedLocalizations() {
+        XCTAssertEqual(AppLocalization.string(.settingsLanguage, localization: "en"), "Language")
+        XCTAssertEqual(AppLocalization.string(.settingsLanguage, localization: "zh-Hans"), "语言")
+        XCTAssertEqual(AppLocalization.string(.settingsLanguage, localization: "ja"), "言語")
+
+        XCTAssertEqual(AppMenuLabels.interfaceLanguageName(.system, localization: "en"), "System")
+        XCTAssertEqual(AppMenuLabels.interfaceLanguageName(.system, localization: "zh-Hans"), "系统")
+        XCTAssertEqual(AppMenuLabels.interfaceLanguageName(.system, localization: "ja"), "システム")
+
+        XCTAssertEqual(AppMenuLabels.interfaceLanguageName(.english, localization: "en"), "English")
+        XCTAssertEqual(AppMenuLabels.interfaceLanguageName(.simplifiedChinese, localization: "en"), "简体中文")
+        XCTAssertEqual(AppMenuLabels.interfaceLanguageName(.japanese, localization: "en"), "日本語")
+    }
+
     func testTitleStyleLabelsResolveInSupportedLocalizations() {
         XCTAssertEqual(AppMenuLabels.titleStyleName(.standard, localization: "en"), "Default")
         XCTAssertEqual(AppMenuLabels.titleStyleName(.timeFirst, localization: "en"), "Time First")
@@ -44,6 +64,12 @@ final class AppLocalizationTests: XCTestCase {
         XCTAssertEqual(AppMenuLabels.titleStyleName(.timeFirst, localization: "ja"), "時刻を先頭")
         XCTAssertEqual(AppMenuLabels.titleStyleName(.separated, localization: "ja"), "区切り表示")
         XCTAssertEqual(AppMenuLabels.titleStyleName(.bracketed, localization: "ja"), "括弧付き")
+    }
+
+    func testTitleStyleLabelsResolveUsingSelectedInterfaceLanguage() {
+        XCTAssertEqual(AppMenuLabels.titleStyleName(.standard, language: .english), "Default")
+        XCTAssertEqual(AppMenuLabels.titleStyleName(.standard, language: .simplifiedChinese), "默认")
+        XCTAssertEqual(AppMenuLabels.titleStyleName(.standard, language: .japanese), "デフォルト")
     }
 
     func testTimeFormatLabelsResolveInSupportedLocalizations() {

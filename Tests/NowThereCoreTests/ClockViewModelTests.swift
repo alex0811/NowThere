@@ -152,6 +152,44 @@ final class ClockViewModelTests: XCTestCase {
         XCTAssertEqual(store.loadTimeFormat(), .twelveHour)
     }
 
+    func testInitialStateUsesStoredInterfaceLanguage() throws {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        store.saveTimeZone(tokyo)
+        store.saveInterfaceLanguage(.japanese)
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        XCTAssertEqual(viewModel.interfaceLanguage, .japanese)
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34")
+    }
+
+    func testSettingInterfaceLanguagePersistsWithoutChangingClockTitle() throws {
+        let defaults = makeDefaults()
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        viewModel.setInterfaceLanguage(.simplifiedChinese)
+
+        XCTAssertEqual(viewModel.interfaceLanguage, .simplifiedChinese)
+        XCTAssertEqual(store.loadInterfaceLanguage(), .simplifiedChinese)
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34")
+    }
+
     func testClearingCustomLabelPersistsEmptyValueAndRemovesItFromTitle() throws {
         let defaults = makeDefaults()
         let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))

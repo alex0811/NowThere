@@ -66,6 +66,7 @@ public final class ClockViewModel: ObservableObject {
     @Published public private(set) var customLabel: String
     @Published public private(set) var titleStyle: TitleStyle
     @Published public private(set) var timeFormat: TimeFormat
+    @Published public private(set) var interfaceLanguage: InterfaceLanguage
     @Published public private(set) var menuTitle: String
     @Published public private(set) var isLaunchAtLoginEnabled: Bool
     @Published public private(set) var launchAtLoginError: LaunchAtLoginError?
@@ -117,6 +118,7 @@ public final class ClockViewModel: ObservableObject {
         let loadedCustomLabel = store.loadCustomLabel()
         let loadedTitleStyle = store.loadTitleStyle()
         let loadedTimeFormat = store.loadTimeFormat()
+        let loadedInterfaceLanguage = store.loadInterfaceLanguage()
         let initialDate = nowProvider()
 
         self.selectedTimeZone = loadedTimeZone
@@ -124,6 +126,7 @@ public final class ClockViewModel: ObservableObject {
         self.customLabel = loadedCustomLabel
         self.titleStyle = loadedTitleStyle
         self.timeFormat = loadedTimeFormat
+        self.interfaceLanguage = loadedInterfaceLanguage
         self.now = initialDate
         self.menuTitle = formatter.title(
             for: initialDate,
@@ -183,6 +186,11 @@ public final class ClockViewModel: ObservableObject {
         self.timeFormat = timeFormat
         store.saveTimeFormat(timeFormat)
         refresh()
+    }
+
+    public func setInterfaceLanguage(_ interfaceLanguage: InterfaceLanguage) {
+        self.interfaceLanguage = interfaceLanguage
+        store.saveInterfaceLanguage(interfaceLanguage)
     }
 
     public func setField(_ field: ClockField, isVisible: Bool) {

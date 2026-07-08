@@ -9,6 +9,11 @@
 "settings.menuBarFields" = "メニューバー項目";
 "settings.customLabel" = "カスタムラベル";
 "settings.customLabel.placeholder" = "仕事、自宅、クライアント";
+"settings.language" = "言語";
+"settings.language.system" = "システム";
+"settings.language.english" = "English";
+"settings.language.simplifiedChinese" = "简体中文";
+"settings.language.japanese" = "日本語";
 "settings.titleStyle" = "タイトルスタイル";
 "settings.titleStyle.standard" = "デフォルト";
 "settings.titleStyle.timeFirst" = "時刻を先頭";
