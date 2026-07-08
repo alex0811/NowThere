@@ -202,6 +202,84 @@ final class ClockFormatterTests: XCTestCase {
         XCTAssertEqual(title, "Work")
     }
 
+    func testTitleSupportsTwelveHourTimeFormat() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: .allVisible,
+            customLabel: "",
+            timeFormat: .twelveHour
+        )
+
+        XCTAssertEqual(title, "Tokyo Jul 08 Wed 12:34 PM")
+    }
+
+    func testSeparatedStyleUsesTwelveHourTimeFormat() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: .allVisible,
+            customLabel: "",
+            titleStyle: .separated,
+            timeFormat: .twelveHour
+        )
+
+        XCTAssertEqual(title, "12:34 PM | Tokyo Jul 08 Wed")
+    }
+
+    func testHiddenTimeFieldIgnoresTimeFormat() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let visibility = FieldVisibility(
+            showsCity: true,
+            showsDate: true,
+            showsWeekday: true,
+            showsTime: false
+        )
+
+        let title = formatter.title(
+            for: date,
+            timeZone: tokyo,
+            visibility: visibility,
+            customLabel: "",
+            titleStyle: .timeFirst,
+            timeFormat: .twelveHour
+        )
+
+        XCTAssertEqual(title, "Tokyo Jul 08 Wed")
+    }
+
+    func testDetailsSupportTwelveHourTimeFormat() throws {
+        let formatter = ClockFormatter()
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+
+        let details = formatter.details(for: date, timeZone: tokyo, timeFormat: .twelveHour)
+
+        XCTAssertEqual(details.time, "12:34 PM")
+    }
+
+    func testTwelveHourTimeFormatHandlesMidnightAndSingleDigitHours() throws {
+        let formatter = ClockFormatter()
+        let utc = try XCTUnwrap(TimeZone(identifier: "UTC"))
+        let midnight = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 0, minute: 5)
+        let morning = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 9, minute: 5)
+        let evening = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 21, minute: 5)
+
+        XCTAssertEqual(formatter.details(for: midnight, timeZone: utc, timeFormat: .twelveHour).time, "12:05 AM")
+        XCTAssertEqual(formatter.details(for: morning, timeZone: utc, timeFormat: .twelveHour).time, "9:05 AM")
+        XCTAssertEqual(formatter.details(for: evening, timeZone: utc, timeFormat: .twelveHour).time, "9:05 PM")
+    }
+
     func testDetailsIncludeFullDateWeekdayTimeAndOffset() throws {
         let formatter = ClockFormatter()
         let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)

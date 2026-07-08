@@ -67,7 +67,8 @@ public final class ClockFormatter {
         timeZone: TimeZone,
         visibility: FieldVisibility,
         customLabel: String = "",
-        titleStyle: TitleStyle = .standard
+        titleStyle: TitleStyle = .standard,
+        timeFormat: TimeFormat = .twentyFourHour
     ) -> String {
         var nonTimeParts: [String] = []
         let trimmedCustomLabel = customLabel.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -88,7 +89,7 @@ public final class ClockFormatter {
             nonTimeParts.append(format(date, format: "EEE", timeZone: timeZone))
         }
 
-        let timePart = visibility.showsTime ? format(date, format: "HH:mm", timeZone: timeZone) : nil
+        let timePart = visibility.showsTime ? format(date, format: timeFormat.dateFormat, timeZone: timeZone) : nil
 
         switch titleStyle {
         case .standard:
@@ -129,13 +130,17 @@ public final class ClockFormatter {
         return parts.joined(separator: " ")
     }
 
-    public func details(for date: Date, timeZone: TimeZone) -> ClockDetails {
+    public func details(
+        for date: Date,
+        timeZone: TimeZone,
+        timeFormat: TimeFormat = .twentyFourHour
+    ) -> ClockDetails {
         ClockDetails(
             label: cityLabel(for: timeZone),
             identifier: timeZone.identifier,
             fullDate: format(date, format: "MMMM d, yyyy", timeZone: timeZone),
             fullWeekday: format(date, format: "EEEE", timeZone: timeZone),
-            time: format(date, format: "HH:mm", timeZone: timeZone),
+            time: format(date, format: timeFormat.dateFormat, timeZone: timeZone),
             utcOffset: utcOffset(for: date, timeZone: timeZone)
         )
     }
