@@ -60,6 +60,7 @@ public final class ClockViewModel: ObservableObject {
     @Published public private(set) var now: Date
     @Published public private(set) var visibility: FieldVisibility
     @Published public private(set) var customLabel: String
+    @Published public private(set) var titleStyle: TitleStyle
     @Published public private(set) var menuTitle: String
     @Published public private(set) var isLaunchAtLoginEnabled: Bool
     @Published public private(set) var launchAtLoginErrorMessage: String?
@@ -109,17 +110,20 @@ public final class ClockViewModel: ObservableObject {
         let loadedTimeZone = store.loadTimeZone()
         let loadedVisibility = store.loadVisibility()
         let loadedCustomLabel = store.loadCustomLabel()
+        let loadedTitleStyle = store.loadTitleStyle()
         let initialDate = nowProvider()
 
         self.selectedTimeZone = loadedTimeZone
         self.visibility = loadedVisibility
         self.customLabel = loadedCustomLabel
+        self.titleStyle = loadedTitleStyle
         self.now = initialDate
         self.menuTitle = formatter.title(
             for: initialDate,
             timeZone: loadedTimeZone,
             visibility: loadedVisibility,
-            customLabel: loadedCustomLabel
+            customLabel: loadedCustomLabel,
+            titleStyle: loadedTitleStyle
         )
         self.isLaunchAtLoginEnabled = loginItemManager.isEnabled
         self.launchAtLoginErrorMessage = nil
@@ -139,7 +143,8 @@ public final class ClockViewModel: ObservableObject {
             for: now,
             timeZone: selectedTimeZone,
             visibility: visibility,
-            customLabel: customLabel
+            customLabel: customLabel,
+            titleStyle: titleStyle
         )
     }
 
@@ -156,6 +161,12 @@ public final class ClockViewModel: ObservableObject {
     public func setCustomLabel(_ label: String) {
         customLabel = label
         store.saveCustomLabel(label)
+        refresh()
+    }
+
+    public func setTitleStyle(_ titleStyle: TitleStyle) {
+        self.titleStyle = titleStyle
+        store.saveTitleStyle(titleStyle)
         refresh()
     }
 

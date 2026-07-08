@@ -112,6 +112,17 @@ struct MenuBarContentView: View {
                 .frame(width: 190)
             }
 
+            Picker("Title Style", selection: Binding(
+                get: { viewModel.titleStyle },
+                set: { viewModel.setTitleStyle($0) }
+            )) {
+                ForEach(TitleStyle.allCases) { titleStyle in
+                    Text(titleStyle.displayName)
+                        .tag(titleStyle)
+                }
+            }
+            .pickerStyle(.menu)
+
             Toggle("City/Label", isOn: fieldBinding(.city))
             Toggle("Date", isOn: fieldBinding(.date))
             Toggle("Weekday", isOn: fieldBinding(.weekday))

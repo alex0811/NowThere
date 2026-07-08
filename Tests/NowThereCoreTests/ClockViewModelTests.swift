@@ -74,6 +74,44 @@ final class ClockViewModelTests: XCTestCase {
         XCTAssertEqual(store.loadCustomLabel(), "Work")
     }
 
+    func testInitialStateUsesStoredTitleStyle() throws {
+        let defaults = makeDefaults()
+        let store = TimeZoneStore(defaults: defaults)
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        store.saveTimeZone(tokyo)
+        store.saveTitleStyle(.separated)
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        XCTAssertEqual(viewModel.titleStyle, .separated)
+        XCTAssertEqual(viewModel.menuTitle, "12:34 | Tokyo Jul 08 Wed")
+    }
+
+    func testSettingTitleStylePersistsAndRefreshesTitle() throws {
+        let defaults = makeDefaults()
+        let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
+        let date = try Self.utcDate(year: 2026, month: 7, day: 8, hour: 3, minute: 34)
+        let viewModel = ClockViewModel(
+            store: store,
+            loginItemManager: FakeLoginItemManager(isEnabled: false),
+            nowProvider: { date },
+            startsTimer: false
+        )
+
+        viewModel.setTitleStyle(.bracketed)
+
+        XCTAssertEqual(viewModel.titleStyle, .bracketed)
+        XCTAssertEqual(viewModel.menuTitle, "[12:34] Tokyo Jul 08 Wed")
+        XCTAssertEqual(store.loadTitleStyle(), .bracketed)
+    }
+
     func testClearingCustomLabelPersistsEmptyValueAndRemovesItFromTitle() throws {
         let defaults = makeDefaults()
         let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
