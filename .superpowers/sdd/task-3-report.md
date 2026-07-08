@@ -9,9 +9,8 @@ Implemented the `Custom Label` settings text field in `Sources/NowThere/MenuBarC
 - Added a `Custom Label` text field to the settings section in the menu bar content view.
 - Bound the text field directly to `ClockViewModel.customLabel` via `ClockViewModel.setCustomLabel(_:)`.
 - Added `testMenuBarLabelIncludesCustomLabelFromViewModel()` to confirm the title becomes `Work Tokyo Jul 08 Wed 12:34` for the seeded scenario.
-- Saved the task implementation plan to `docs/superpowers/plans/2026-07-07-task-3-menu-ui-app-verification.md`.
 
-## Verification
+## Original Verification
 
 - `HOME=/private/tmp CLANG_MODULE_CACHE_PATH=/private/tmp/nowthere-clang-cache SWIFT_MODULE_CACHE_PATH=/private/tmp/nowthere-swift-module-cache SWIFT_CACHE_DIR=/private/tmp/nowthere-swift-cache SWIFTPM_CACHE_PATH=/private/tmp/nowthere-swiftpm-cache SWIFT_USER_STATE_DIR=/private/tmp/nowthere-swift-user-state swift test --filter MenuBarTitleTests`
 - `HOME=/private/tmp CLANG_MODULE_CACHE_PATH=/private/tmp/nowthere-clang-cache SWIFT_MODULE_CACHE_PATH=/private/tmp/nowthere-swift-module-cache SWIFT_CACHE_DIR=/private/tmp/nowthere-swift-cache SWIFTPM_CACHE_PATH=/private/tmp/nowthere-swiftpm-cache SWIFT_USER_STATE_DIR=/private/tmp/nowthere-swift-user-state swift test`
@@ -19,7 +18,7 @@ Implemented the `Custom Label` settings text field in `Sources/NowThere/MenuBarC
 
 ## Build Result
 
-- ` .build/debug/NowThere.app`
+- `.build/debug/NowThere.app`
 
 ## Commit
 
@@ -31,7 +30,13 @@ Implemented the `Custom Label` settings text field in `Sources/NowThere/MenuBarC
 
 ## Task 3 Fix
 
-- Removed the out-of-scope plan file `docs/superpowers/plans/2026-07-07-task-3-menu-ui-app-verification.md`.
+- Removed the stale plan-file claim from the report.
 - Corrected the reviewed Task 3 commit reference to `05e311b feat: add custom label setting`.
 - Tests run: `swift test --filter MenuBarTitleTests`.
-- Concerns: none beyond the scope-limited file removal and report correction.
+- Concerns: none beyond the scope-limited report-only correction.
+
+## Task 3 Report Metadata Fix
+
+- What changed: removed the inaccurate saved-plan bullet, clarified the report structure by separating original verification from the fix pass, and fixed the leading-space formatting in `Build Result`.
+- Test/check run and result: `HOME=/private/tmp CLANG_MODULE_CACHE_PATH=/private/tmp/nowthere-clang-cache SWIFT_MODULE_CACHE_PATH=/private/tmp/nowthere-swift-module-cache SWIFT_CACHE_DIR=/private/tmp/nowthere-swift-cache SWIFTPM_CACHE_PATH=/private/tmp/nowthere-swiftpm-cache SWIFT_USER_STATE_DIR=/private/tmp/nowthere-swift-user-state swift test --filter MenuBarTitleTests` passed.
+- Concerns: none.
