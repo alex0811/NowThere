@@ -98,6 +98,20 @@ struct MenuBarContentView: View {
             Text("Menu Bar Fields")
                 .font(.headline)
 
+            HStack {
+                Text("Custom Label")
+                Spacer()
+                TextField(
+                    "Work, Home, Client",
+                    text: Binding(
+                        get: { viewModel.customLabel },
+                        set: { viewModel.setCustomLabel($0) }
+                    )
+                )
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 190)
+            }
+
             Toggle("City/Label", isOn: fieldBinding(.city))
             Toggle("Date", isOn: fieldBinding(.date))
             Toggle("Weekday", isOn: fieldBinding(.weekday))
