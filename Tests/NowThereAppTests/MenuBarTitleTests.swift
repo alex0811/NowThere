@@ -118,6 +118,7 @@ final class MenuBarTitleTests: XCTestCase {
         let suiteName = "NowThereAppTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
+        defaults.set(InterfaceLanguage.english.rawValue, forKey: TimeZoneStoreKeys.interfaceLanguage)
         return defaults
     }
 

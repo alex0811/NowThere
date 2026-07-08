@@ -134,7 +134,8 @@ public final class ClockViewModel: ObservableObject {
             visibility: loadedVisibility,
             customLabel: loadedCustomLabel,
             titleStyle: loadedTitleStyle,
-            timeFormat: loadedTimeFormat
+            timeFormat: loadedTimeFormat,
+            locale: Self.menuTitleLocale(for: loadedInterfaceLanguage)
         )
         self.isLaunchAtLoginEnabled = loginItemManager.isEnabled
         self.launchAtLoginError = nil
@@ -156,7 +157,8 @@ public final class ClockViewModel: ObservableObject {
             visibility: visibility,
             customLabel: customLabel,
             titleStyle: titleStyle,
-            timeFormat: timeFormat
+            timeFormat: timeFormat,
+            locale: Self.menuTitleLocale(for: interfaceLanguage)
         )
     }
 
@@ -191,6 +193,7 @@ public final class ClockViewModel: ObservableObject {
     public func setInterfaceLanguage(_ interfaceLanguage: InterfaceLanguage) {
         self.interfaceLanguage = interfaceLanguage
         store.saveInterfaceLanguage(interfaceLanguage)
+        refresh()
     }
 
     public func setField(_ field: ClockField, isVisible: Bool) {
@@ -239,6 +242,19 @@ public final class ClockViewModel: ObservableObject {
         let initialDelay = secondsUntilNextMinute(from: now)
         timerScheduler.schedule(after: initialDelay, repeats: false) { [weak self] in
             self?.refreshAfterMinuteBoundary()
+        }
+    }
+
+    private static func menuTitleLocale(for interfaceLanguage: InterfaceLanguage) -> Locale {
+        switch interfaceLanguage {
+        case .system:
+            .autoupdatingCurrent
+        case .english:
+            Locale(identifier: "en_US_POSIX")
+        case .simplifiedChinese:
+            Locale(identifier: "zh-Hans")
+        case .japanese:
+            Locale(identifier: "ja")
         }
     }
 

@@ -68,10 +68,12 @@ public final class ClockFormatter {
         visibility: FieldVisibility,
         customLabel: String = "",
         titleStyle: TitleStyle = .standard,
-        timeFormat: TimeFormat = .twentyFourHour
+        timeFormat: TimeFormat = .twentyFourHour,
+        locale: Locale? = nil
     ) -> String {
         var nonTimeParts: [String] = []
         let trimmedCustomLabel = customLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleLocale = locale ?? self.locale
 
         if !trimmedCustomLabel.isEmpty {
             nonTimeParts.append(trimmedCustomLabel)
@@ -82,14 +84,19 @@ public final class ClockFormatter {
         }
 
         if visibility.showsDate {
-            nonTimeParts.append(format(date, format: "MMM dd", timeZone: timeZone))
+            nonTimeParts.append(format(date, format: "MMM dd", timeZone: timeZone, locale: titleLocale))
         }
 
         if visibility.showsWeekday {
-            nonTimeParts.append(format(date, format: "EEE", timeZone: timeZone))
+            nonTimeParts.append(format(date, format: "EEE", timeZone: timeZone, locale: titleLocale))
         }
 
-        let timePart = visibility.showsTime ? format(date, format: timeFormat.dateFormat, timeZone: timeZone) : nil
+        let timePart = visibility.showsTime ? format(
+            date,
+            format: timeFormat.dateFormat,
+            timeZone: timeZone,
+            locale: titleLocale
+        ) : nil
 
         switch titleStyle {
         case .standard:
@@ -151,6 +158,10 @@ public final class ClockFormatter {
     }
 
     private func format(_ date: Date, format: String, timeZone: TimeZone) -> String {
+        self.format(date, format: format, timeZone: timeZone, locale: locale)
+    }
+
+    private func format(_ date: Date, format: String, timeZone: TimeZone, locale: Locale) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.calendar = Calendar(identifier: calendarIdentifier)

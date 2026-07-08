@@ -152,7 +152,7 @@ final class ClockViewModelTests: XCTestCase {
         XCTAssertEqual(store.loadTimeFormat(), .twelveHour)
     }
 
-    func testInitialStateUsesStoredInterfaceLanguage() throws {
+    func testInitialStateUsesStoredInterfaceLanguageForMenuTitle() throws {
         let defaults = makeDefaults()
         let store = TimeZoneStore(defaults: defaults)
         let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
@@ -168,10 +168,10 @@ final class ClockViewModelTests: XCTestCase {
         )
 
         XCTAssertEqual(viewModel.interfaceLanguage, .japanese)
-        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34")
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo 7月 08 水 12:34")
     }
 
-    func testSettingInterfaceLanguagePersistsWithoutChangingClockTitle() throws {
+    func testSettingInterfaceLanguagePersistsAndRefreshesMenuTitle() throws {
         let defaults = makeDefaults()
         let tokyo = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
         let store = TimeZoneStore(defaults: defaults, fallbackTimeZone: { tokyo })
@@ -187,7 +187,7 @@ final class ClockViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.interfaceLanguage, .simplifiedChinese)
         XCTAssertEqual(store.loadInterfaceLanguage(), .simplifiedChinese)
-        XCTAssertEqual(viewModel.menuTitle, "Tokyo Jul 08 Wed 12:34")
+        XCTAssertEqual(viewModel.menuTitle, "Tokyo 7月 08 周三 12:34")
     }
 
     func testClearingCustomLabelPersistsEmptyValueAndRemovesItFromTitle() throws {
@@ -392,6 +392,7 @@ final class ClockViewModelTests: XCTestCase {
         let suiteName = "NowThereTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
+        defaults.set(InterfaceLanguage.english.rawValue, forKey: TimeZoneStoreKeys.interfaceLanguage)
         return defaults
     }
 
